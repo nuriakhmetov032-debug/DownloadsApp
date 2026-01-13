@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARTYOM-LAB</title>
+    <link rel="stylesheet" href="cdnjs.cloudflare.com">
+    <style>
+        /* Стили по умолчанию (Светлая тема) */
+        :root {
+            --bg: #ffffff; --text: #1f2937; --text-light: #6b7280; --accent: #10b981; --card: #f9fafb; --border: #e5e7eb;
+        }
+        /* --- Темная тема (Dark Theme) --- */
+        .theme-dark { --bg: #000000; --text: #ffffff; --text-light: #999999; --accent: #10b981; --card: #111111; --border: #444444; }
+        /* --- Золотая тема (Gold Theme) --- */
+        .theme-gold { --bg: #000000; --text: #ffffff; --text-light: #a0a0a0; --accent: #FFD700; --card: #1a1a1a; --border: #333333; }
+        .theme-gold .btn { background: linear-gradient(to bottom, #fef4a0 0%, #dab500 50%, #fef4a0 100%); color: #000000; border: 1px solid #ffdc5e; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4); }
+        .theme-gold .btn:hover { background: linear-gradient(to top, #dab500 0%, #fef4a0 50%, #dab500 100%); }
+        .theme-gold .nav-link.active { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+
+        /* --- Анимированный фон "Цифровые волны" --- */
+        .animated-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: linear-gradient(135deg, #0f3443 0%, #1f2041 100%);
+            overflow: hidden;
+        }
+        .wave {
+            position: absolute; bottom: 0; width: 200%; height: 100px;
+            background: rgba(0, 255, 65, 0.15); /* Цвет волн */
+            animation: moveWaves 15s linear infinite;
+        }
+        .wave:nth-child(2) { animation-duration: 20s; opacity: 0.25; height: 120px; }
+        .wave:nth-child(3) { animation-duration: 25s; opacity: 0.1; height: 150px; }
+
+        @keyframes moveWaves {
+            0% { transform: translateX(0) translateY(0) rotate(0deg); }
+            100% { transform: translateX(-50%) translateY(0) rotate(0deg); }
+        }
+
+        /* Базовые стили UI */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; transition: background-color 0.3s, color 0.3s; }
+        .container { width: 90%; max-width: 1200px; height: 90vh; display: grid; grid-template-columns: 260px 1fr; background: var(--card); border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); overflow: hidden; transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s; }
+        /* Делаем контейнер полупрозрачным, чтобы было видно фон */
+        .container { background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+        .theme-dark .container, .theme-gold .container { background-color: rgba(17, 17, 17, 0.9); }
+        
+        aside { padding: 40px 20px; background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; transition: background-color 0.3s, border-color 0.3s; }
+        .logo { font-weight: 700; font-size: 1.4rem; margin-bottom: 30px; color: var(--text); padding: 0 10px; transition: color 0.3s; }
+        .logo span { color: var(--accent); transition: color 0.3s; }
+        .nav-link { padding: 12px 16px; border-radius: 8px; color: var(--text-light); font-weight: 500; transition: all 0.2s ease; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .nav-link:hover { color: var(--text); background: var(--card); }
+        .nav-link.active { background: var(--accent); color: white; font-weight: 600; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
+        main { padding: 50px 70px; overflow-y: auto; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 10px; }
+        .subtitle { color: var(--text-light); margin-bottom: 40px; font-size: 1.1rem; }
+        .content-section { display: none; animation: fadeIn 0.4s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .card { padding: 25px; border-radius: 10px; background: var(--bg); transition: 0.3s ease; border: 1px solid var(--border); }
+        .card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05); }
+        .card h3 { margin-bottom: 8px; font-size: 1rem; }
+        .card p { color: var(--text-light); line-height: 1.5; margin-bottom: 20px; font-size: 0.85rem; }
+        .btn { display: inline-block; padding: 12px 24px; background: var(--accent); color: white; font-weight: 600; border-radius: 50px; text-decoration: none; font-size: 0.9rem; width: 100%; text-align: center; transition: all 0.3s ease; border: none; box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4); transform: translateY(0); cursor: pointer; }
+        .btn:hover { opacity: 0.95; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5); }
+        .social-btn { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .social-btn i { font-size: 1rem; color: white; }
+        main::-webkit-scrollbar { width: 6px; }
+        main::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+        .calculator { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 15px; }
+        .calc-display { grid-column: span 4; padding: 10px; background: var(--card); border: 1px solid var(--border); text-align: right; font-size: 1.5rem; margin-bottom: 10px; color: var(--text); }
+        .calc-btn { padding: 10px; font-size: 1rem; background: var(--card); border: 1px solid var(--border); cursor: pointer; border-radius: 4px; color: var(--text); }
+        .calc-btn:hover { background: var(--border); }
+        .calc-btn.op { background: var(--accent); color: white; }
+        .calc-btn.eq { background: #1f2937; color: white; grid-column: span 2; }
+        .calc-btn.clear { background: #dc3545; color: white; }
+        .notepad { width: 100%; height: 200px; padding: 10px; border: 1px solid var(--border); border-radius: 4px; resize: none; font-size: 0.9rem; margin-top: 15px; background: var(--card); color: var(--text); }
+        #live-timer { margin-top: auto; padding: 20px 10px 0; font-size: 0.9rem; color: var(--text-light); }
+        #live-timer strong { display: block; font-size: 1.2rem; color: var(--text); margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <!-- Анимированный фон -->
+    <div class="animated-bg">
+        <div class="wave"></div>
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
+    <div class="container" id="site-container">
+        <aside>
+            <div class="logo">ARTYOM<span>.LAB</span></div>
+            <div class="nav-link active" onclick="show('apps', this)"><i class="fas fa-folder"></i> Архив</div>
+            <div class="nav-link" onclick="show('news', this)"><i class="fas fa-newspaper"></i> Новости</div>
+            <div class="nav-link" onclick="show('settings', this)"><i class="fas fa-cog"></i> Настройки</div>
+            <div class="nav-link" onclick="show('toolkit', this)"><i class="fas fa-tools"></i> Функции</div>
+            <div class="nav-link" onclick="show('social', this)"><i class="fas fa-users"></i> Сообщество</div>
+            <div class="nav-link" onclick="show('author', this)"><i class="fas fa-user-circle"></i> Об авторе</div>
+            <div class="nav-link" onclick="show('errors', this)"><i class="fas fa-bug"></i> Ошибки</div>
+			<div class="nav-link" onclick="show('photo', this)"><i class="fas fa-bug"></i> Фото</div>
+            <div id="live-timer">
+                Текущее время:
+                <strong id="current-time">00:00:00</strong>
+            </div>
+        </aside>
+
+        <main>
+    <!-- РАЗДЕЛ: АРХИВ -->
+<section id="apps" class="content-section active">
+    <h1>Цифровой архив</h1>
+    <p class="subtitle">Полная коллекция разработок.</p>
+    <div class="grid">
+        <!-- HackerSimulator -->
+        <div class="card">
+            <h3>HackerSimulator</h3>
+            <p>Погружение в мир кибербезопасности.</p>
+            <a href="files/hacker_app.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/_qjBcblMzhO1zA" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- PasswordApp -->
+        <div class="card">
+            <h3>PasswordApp</h3>
+            <p>Угадай надежные пароли.</p>
+            <a href="files/password_app.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/e15xb3_evlru3w" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- PingPong -->
+        <div class="card">
+            <h3>PingPong</h3>
+            <p>Классическая аркада.</p>
+            <a href="files/ping_pong.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/7pGJWh5mPfd7Xw" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- SpaceSimulator -->
+        <div class="card">
+            <h3>SpaceSimulator</h3>
+            <p>Путешествие по галактике.</p>
+            <a href="files/space_sim.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/brBVzf36a2mXdQ" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Tetris -->
+        <div class="card">
+            <h3>Tetris</h3>
+            <p>Вечная классика.</p>
+            <a href="files/3.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/gJrT1MMULZMqBQ" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Weather App -->
+        <div class="card">
+            <h3>Weather App</h3>
+            <p>Точный прогноз погоды.</p>
+            <a href="files/weather_app.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/1m1Nkah0wkeapw" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Заменитель 3000 -->
+        <div class="card">
+            <h3>Заменитель 3000</h3>
+            <p>Инструмент для заменены числа в процессе.</p>
+            <a href="files/replacer.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/_JNOikM7U7FCSw" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Игра Тап-Тап -->
+        <div class="card">
+            <h3>Игра Тап-Тап</h3>
+            <p>Простой кликер.</p>
+            <a href="files/tap_tap.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/KSkr211IgW5mjg" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Органайзер -->
+        <div class="card">
+            <h3>Органайзер</h3>
+            <p>Планирование вэб вкладок.</p>
+            <a href="files/organizer.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/wnWp99iLdp2jLg" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+
+        <!-- Симулятор снегохода -->
+        <div class="card">
+            <h3>Симулятор снегохода</h3>
+            <p>Зимние приключения.</p>
+            <a href="files/snow_sim.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/9avMFL6CbWNkYQ" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+		
+        <!-- Симулятор хоррор -->
+        <div class="card">
+            <h3>Первая 3д игра на сайте</h3>
+            <p> Ты стоишь перед огромными серыми стенами завода. Вокруг ярко светит солнце, поет ветер в сухой траве. Это последний оплот нормальности. Черная дверь впереди — это пасть зверя</p>
+            <a href="files/snow_sim.zip" download class="btn">Скачать</a>
+            <a href="https://disk.yandex.ru/d/aZt1w-MmVj0KHA" target="_blank" class="btn yandex-btn"><i class="fab fa-yandex"></i> Яндекс Диск</a>
+        </div>
+    </div>
+</section>
+
+
+            <!-- РАЗДЕЛ: НОВОСТИ -->
+            <section id="news" class="content-section">
+                <h1>Заметки</h1>
+                <p class="subtitle">Что нового произошло в лаборатории.</p>
+				<div class="card" style="width: 100%;">
+                    <h3>Мой Telegram канал</h3>
+                    <p>С Новым годом, дорогие друзья!
+Хочу сказать вам спасибо за то, что вы есть. Замечаю, что в последнее время активность на канале снизилась — и мне очень важна ваша поддержка. Даже простая реакция или комментарий помогут каналу жить дальше. Здесь нет рекламы, всё держится на чистом энтузиазме — и вашей поддержке. Давайте вместе сохраним это пространство!</p>
+                </div>
+				<div class="card" style="width: 100%;">
+                    <h3>3 д игруха</h3>
+                    <p>Привет! Знаю, что к новым приложениям часто относятся с подозрением, но спешу заверить: я сам терпеть не могу вирусы и никогда бы не выложил на сайт то, в чем не уверен.
+Рад представить свою новую игру — это 3D-хоррор. В ней я намеренно сделал «стремную» олдскульную графику для пущей атмосферы. Заходите заценить!</p>
+                </div>
+				<div class="card" style="width: 100%;">
+                    <h3>Замедляемся:(</h3>
+                    <p>Простите но наш сайт замедляется с обновами, так как делает его 1 человек которому 13 лет, если бы кто нибудь зашел в канал и помог мне. . .</p>
+                </div>
+            </section>
+			
+			
+            
+            <!-- РАЗДЕЛ: НАСТРОЙКИ -->
+            <section id="settings" class="content-section">
+                <h1>Настройки</h1>
+                <p class="subtitle">Персонализация интерфейса и функций.</p>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Смена темы</h3>
+                        <p>Выберите желаемый стиль оформления.</p>
+                        <button class="btn" onclick="setTheme('light')">Светлая тема</button>
+                        <button class="btn" onclick="setTheme('dark')" style="margin-top: 10px;">Темная тема</button>
+                        <button class="btn" onclick="setTheme('gold')" style="margin-top: 10px;">Золотая тема</button>
+                    </div>
+                    <div class="card">
+                        <h3>Настройки фона</h3>
+                        <p>Здесь вы управляете встроенным фоном.</p>
+                         <button class="btn" onclick="toggleWaves(false)" style="margin-top: 10px; background: #a0a0a0;">Отключить волны</button>
+                          <button class="btn" onclick="toggleWaves(true)" style="margin-top: 10px;">Включить волны</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- РАЗДЕЛ: ПОЛЕЗНЫЕ ФУНКЦИИ -->
+            <section id="toolkit" class="content-section">
+                <h1>Полезные функции</h1>
+                <p class="subtitle">Набор небольших онлайн-инструментов.</p>
+                <div class="grid">
+                    <div class="card">
+                        <h3>Калькулятор</h3>
+                        <p>Простой онлайн-калькулятор.</p>
+                        <div class="calculator">
+                            <input type="text" class="calc-display" id="calc-display" disabled>
+                            <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+                            <button class="calc-btn op" onclick="appendToDisplay('/')">/</button>
+                            <button class="calc-btn op" onclick="appendToDisplay('*')">*</button>
+                            <button class="calc-btn" onclick="appendToDisplay('7')">7</button>
+                            <button class="calc-btn" onclick="appendToDisplay('8')">8</button>
+                            <button class="calc-btn" onclick="appendToDisplay('9')">9</button>
+                            <button class="calc-btn op" onclick="appendToDisplay('-')">-</button>
+                            <button class="calc-btn" onclick="appendToDisplay('4')">4</button>
+                            <button class="calc-btn" onclick="appendToDisplay('5')">5</button>
+                            <button class="calc-btn" onclick="appendToDisplay('6')">6</button>
+                            <button class="calc-btn op" onclick="appendToDisplay('+')">+</button>
+                            <button class="calc-btn" onclick="appendToDisplay('1')">1</button>
+                            <button class="calc-btn" onclick="appendToDisplay('2')">2</button>
+                            <button class="calc-btn" onclick="appendToDisplay('3')">3</button>
+                            <button class="calc-btn eq" onclick="calculate()">=</button>
+                            <button class="calc-btn" onclick="appendToDisplay('0')">0</button>
+                            <button class="calc-btn" onclick="appendToDisplay('.')">.</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Блокнот</h3>
+                        <p>Простые заметки в браузере.</p>
+                        <textarea class="notepad" placeholder="Начните писать здесь..."></textarea>
+                    </div>
+                    <div class="card">
+                        <h3>Конвертер валют</h3>
+                        <p>Для этой функции требуется API, пока просто заглушка.</p>
+                        <a href="#" class="btn" style="background: #a0a0a0;">Скоро</a>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- РАЗДЕЛ: СООБЩЕСТВО -->
+<section id="social" class="content-section">
+    <h1>Сообщество</h1>
+    <p class="subtitle">Место для общения и вдохновения.</p>
+    <div class="card">
+        <h3>Наш Telegram-канал</h3>
+        <p>Присоединяйтесь к нам, чтобы быть на связи и не пропустить анонсы.</p>
+        <!-- Ссылка на ваш канал citeDownloads -->
+        <a href="https://t.me/citeDownloads" target="_blank" class="btn social-btn">
+            <i class="fab fa-telegram-plane"></i> Telegram Канал
+        </a>
+    </div>
+</section>
+            <!-- РАЗДЕЛ: Скрины -->
+<section id="photo" class="content-section">
+    <h1>Фото</h1>
+    <p class="subtitle">Фотографии наших приложений</p>
+    <div class="card">
+        <h3>Фото:</h3>
+        <img src="Photo/HackSim.png" alt="HackSim" width="300" height="200">
+		<p>Приложение: HackerSimulator</p>
+		<p>---------------------------</p>
+	    <h3>Фото:</h3>
+        <img src="Photo/Pasword.png" alt="HackSim" width="300" height="200">
+		<p>Приложение: PaswordApp</p>
+		<p>---------------------------</p>
+	    <h3>Фото:</h3>
+        <img src="Photo/Pong.png" alt="HackSim" width="300" height="200">
+		<p>Приложение: PingPong</p>
+		<p>---------------------------</p>
+	    <h3>Фото:</h3>
+        <img src="Photo/Space.png" alt="HackSim" width="300" height="200">
+		<p>Приложение: SpaceSimulator</p>
+		<p style="color: green;">Понравилось?Перейдите в раздел архив и скачайте любимую игру!</p>
+        
+        
+    </div>
+</section>
+
+            <!-- ОШИБКИ -->
+            <section id="errors" class="content-section">
+                <h1>Ошибки</h1>
+                <p class="subtitle">Сообщите о багах или узнайте статус исправлений.</p>
+                <div class="card">
+                    <h3>Нашли баг?Обязательно напиши</h3>
+                    <p>Если приложение вылетает или ссылка не работает, напишите в нашу поддержку.</p>
+                    <a href="https://t.me/citeDownloads" target="_blank" class="btn error-btn">
+                        <i class="fas fa-bug"></i> Сообщить об ошибке
+                    </a>
+                </div>
+            </section>
+
+
+
+            <!-- РАЗДЕЛ: АВТОР -->
+            <section id="author" class="content-section">
+                <h1>Автор</h1>
+                <p class="subtitle">Кто стоит за созданием этого места.</p>
+                <div class="card">
+                    <p>Артем. Люблю делать вещи, которые приносят спокойствие и пользу. Этот портал — моё видение идеального цифрового пространства.</p>
+                    <p style="margin-top: 15px; font-size: 0.8rem; color: var(--text-light);">Кстати, этот сайт создал 13-летний мальчик. Поддержите его в Телеграм звездами! ⭐</p>
+                </div>
+            </section>
+			
+
+        </main>
+    </div>
+
+    <script>
+        function show(id, el) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (el) { el.classList.add('active'); }
+        }
+
+        function toggleWaves(isEnabled) {
+            document.querySelector('.animated-bg').style.display = isEnabled ? 'block' : 'none';
+        }
+
+        function setTheme(themeName) {
+            document.body.className = '';
+            if (themeName !== 'light') { document.body.classList.add('theme-' + themeName); }
+        }
+        
+        function updateTime() { const now = new Date(); const timeString = now.toLocaleTimeString('ru-RU', { hour12: false }); document.getElementById('current-time').textContent = timeString; }
+        setInterval(updateTime, 1000); updateTime();
+        const display = document.getElementById('calc-display');
+        function appendToDisplay(value) { display.value += value; }
+        function clearDisplay() { display.value = ''; }
+        function calculate() { try { display.value = eval(display.value); } catch (error) { display.value = 'Error'; } }
+    </script>
+</body>
+</html>
